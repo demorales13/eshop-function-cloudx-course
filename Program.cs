@@ -1,26 +1,20 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Azure.Storage.Blobs;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
 
-var cosmosConnectionString = Environment.GetEnvironmentVariable("CosmosDbConnectionString");
-if (string.IsNullOrWhiteSpace(cosmosConnectionString))
+var blobConnectionString = Environment.GetEnvironmentVariable("BlobStorageConnection");
+if (string.IsNullOrWhiteSpace(blobConnectionString))
 {
-    throw new InvalidOperationException("CosmosDbConnectionString is not configured.");
+    throw new InvalidOperationException("BlobStorageConnection is not configured.");
 }
 
-var sqlCatalogConnectionString = Environment.GetEnvironmentVariable("SqlCatalogConnectionString");
-if (string.IsNullOrWhiteSpace(sqlCatalogConnectionString))
-{
-    throw new InvalidOperationException("SqlCatalogConnectionString is not configured.");
-}
-
-builder.Services.AddSingleton(_ => new CosmosClient(cosmosConnectionString));
+builder.Services.AddSingleton(_ => new BlobServiceClient(blobConnectionString));
 
 builder.Services
     .AddApplicationInsightsTelemetryWorkerService()
